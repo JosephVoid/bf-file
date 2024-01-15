@@ -17,15 +17,15 @@ import jakarta.annotation.PostConstruct;
 
 @Service
 public class FileStorageService {
-  
+
   @Value("${root.path}")
   private String rootPath;
-  private final Path root = Paths.get(rootPath);
 
   @PostConstruct
   public void init() {
     try {
-      Files.createDirectories(root);
+      System.out.println(rootPath);
+      Files.createDirectories(Paths.get(rootPath));
     } catch (IOException e) {
       System.out.println(e.getLocalizedMessage());
       throw new RuntimeException("Could not initialize folder for upload!");
@@ -35,7 +35,7 @@ public class FileStorageService {
   public void save(MultipartFile file, String path, boolean update) throws Exception{
     try {
       Path dest = Paths.get(path);
-      Path relativePath = Files.createDirectories(Paths.get(this.root.toString(), dest.getParent().toString()));
+      Path relativePath = Files.createDirectories(Paths.get(Paths.get(rootPath).toString(), dest.getParent().toString()));
       Path destFilePath = Paths.get(relativePath.toString(), dest.getFileName().toString());
       System.out.println(destFilePath.toString());
       if (!update)
@@ -51,7 +51,7 @@ public class FileStorageService {
   public Resource load(String filename) throws Exception{
     try {
       Path requestFilePath = Paths.get(filename);
-      Path file = Paths.get(root.toString(), requestFilePath.toString());
+      Path file = Paths.get(Paths.get(rootPath).toString(), requestFilePath.toString());
       System.out.println(file.toString());
       Resource resource = new UrlResource(file.toUri());
       if (resource.exists() || resource.isReadable()) {
